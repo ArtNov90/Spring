@@ -1,4 +1,4 @@
-package com.digi.digihello.villes;
+package com.digi.digihello.model;
 
 public class Ville {
 	

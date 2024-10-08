@@ -1,4 +1,4 @@
-package com.digi.digihello.rest;
+package com.digi.digihello.restcontroller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
