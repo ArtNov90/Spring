@@ -1,4 +1,4 @@
-package com.digi.digihello.rest;
+package com.digi.digihello.service;
 
 import org.springframework.stereotype.Service;
 
