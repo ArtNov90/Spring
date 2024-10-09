@@ -1,10 +1,24 @@
 package com.digi.digihello.model;
 
-public class Ville {
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
+@Entity
+public class Ville {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 	private String nom;
 	private String nbHabitants;
-	private int id;
+	
+	@ManyToOne
+    private Departement departement;
+	
+	public Ville() {
+	}
 
 	public Ville(int id, String nom, String nbHabitants) {
 		this.id = id;

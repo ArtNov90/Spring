@@ -23,29 +23,42 @@ public class VilleController {
 	private List<Ville> villes = new ArrayList<>();
 	private int nextId = 1;
 
-	@GetMapping("/liste")
-	public List<Ville> afficherVilles() {
+	 // 1. Méthode GET pour retourner la liste des villes
+    @GetMapping("/liste")
+    public List<Ville> afficherVilles() {
+        if (villes.isEmpty()) {
+            villes.add(new Ville(nextId++, "Paris", "2,161,000"));
+            villes.add(new Ville(nextId++, "Lyon", "515,695"));
+            villes.add(new Ville(nextId++, "Marseille", "861,635"));
+            villes.add(new Ville(nextId++, "Toulouse", "493,465"));
+            villes.add(new Ville(nextId++, "Nice", "342,295"));
+        }
+        return villes;
+    }
 
-		if (villes.isEmpty()) {
-			villes.add(new Ville(nextId++, "Paris", "2,161,000"));
-			villes.add(new Ville(nextId++, "Lyon", "515,695"));
-			villes.add(new Ville(nextId++, "Marseille", "861,635"));
-			villes.add(new Ville(nextId++, "Toulouse", "493,465"));
-			villes.add(new Ville(nextId++, "Nice", "342,295"));
-		}
-		return villes;
-	}
+    // 2. Méthode GET pour retourner une ville par son id
+    @GetMapping("/{id}")
+    public ResponseEntity<Ville> afficherVilleParId(@PathVariable int id) {
+        for (Ville v : villes) {
+            if (v.getId() == id) {
+                return new ResponseEntity<>(v, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
-	@GetMapping("/{id}")
-	public ResponseEntity<Ville> afficherVilleParId(@PathVariable int id) {
-		for (Ville v : villes) {
-			if (v.getId() == id) {
-				return new ResponseEntity<>(v, HttpStatus.OK);
-			}
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	}
-
+    // 3. Méthode GET pour retourner une ville par son nom
+    @GetMapping("/nom/{nom}")
+    public ResponseEntity<Ville> afficherVilleParNom(@PathVariable String nom) {
+        for (Ville v : villes) {
+            if (v.getNom().equalsIgnoreCase(nom)) {
+                return new ResponseEntity<>(v, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    
+   // 4. Méthode POST pour ajouter une nouvelle ville
 	@PostMapping("/ajouter")
 	public ResponseEntity<String> ajouterVille(@RequestBody Ville ville) {
 
