@@ -14,6 +14,7 @@ public class Departement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nom;
+    private String code;
     
     @OneToMany(mappedBy = "departement")
     private List<Ville> villes;  // Liste des villes appartenant au département
@@ -21,9 +22,10 @@ public class Departement {
     // Constructeurs
     public Departement() {}
 
-    public Departement(int id, String nom) {
+    public Departement(int id, String nom,String code) {
         this.id = id;
         this.nom = nom;
+        this.code = code;
     }
 
     // Getters et Setters
@@ -50,4 +52,15 @@ public class Departement {
     public void setVilles(List<Ville> villes) {
         this.villes = villes;
     }
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	
+	
 }

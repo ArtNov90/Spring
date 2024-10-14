@@ -18,12 +18,12 @@ public class VilleDaoImpl implements VilleDao {
 		return entityManager.createQuery("SELECT v FROM Ville v", Ville.class).getResultList();
 	}
 
-	@Override
+	
 	public Ville findById(int id) {
 		return entityManager.find(Ville.class, id);
 	}
 
-	@Override
+	
 	public Ville findByName(String nom) {
 		return entityManager.createQuery("SELECT v FROM Ville v WHERE v.nom = :nom", Ville.class)
 				.setParameter("nom", nom).getSingleResult();
@@ -38,7 +38,7 @@ public class VilleDaoImpl implements VilleDao {
 		}
 	}
 
-	@Override
+	
 	public void deleteById(int id) {
 		Ville ville = findById(id);
 		if (ville != null) {

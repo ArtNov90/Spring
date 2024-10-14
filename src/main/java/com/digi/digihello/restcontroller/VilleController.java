@@ -1,103 +1,113 @@
 package com.digi.digihello.restcontroller;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import com.digi.digihello.model.Ville;
+import com.digi.digihello.repository.VilleRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/ville")
 public class VilleController {
 
-	private List<Ville> villes = new ArrayList<>();
-	private int nextId = 1;
+    @Autowired
+    private VilleRepository villeRepository;
 
-	 // 1. Méthode GET pour retourner la liste des villes
-    @GetMapping("/liste")
-    public List<Ville> afficherVilles() {
-        if (villes.isEmpty()) {
-            villes.add(new Ville(nextId++, "Paris", "2,161,000"));
-            villes.add(new Ville(nextId++, "Lyon", "515,695"));
-            villes.add(new Ville(nextId++, "Marseille", "861,635"));
-            villes.add(new Ville(nextId++, "Toulouse", "493,465"));
-            villes.add(new Ville(nextId++, "Nice", "342,295"));
-        }
-        return villes;
+    // 1. Méthode GET pour retourner la liste paginée des villes
+    @GetMapping("/liste/paginee")
+    public List<Ville> afficherVillesPaginees(@RequestParam int page, @RequestParam int size) {
+        PageRequest pageable = PageRequest.of(page, size);  // PageRequest pour pagination
+        return villeRepository.findAll();  // Appel au repository avec pagination
     }
 
     // 2. Méthode GET pour retourner une ville par son id
     @GetMapping("/{id}")
     public ResponseEntity<Ville> afficherVilleParId(@PathVariable int id) {
-        for (Ville v : villes) {
-            if (v.getId() == id) {
-                return new ResponseEntity<>(v, HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Optional<Ville> villeOpt = villeRepository.findById(id);  // Utilisation de findById pour rechercher une ville
+        return villeOpt.map(ville -> new ResponseEntity<>(ville, HttpStatus.OK))
+                       .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // 3. Méthode GET pour retourner une ville par son nom
-    @GetMapping("/nom/{nom}")
-    public ResponseEntity<Ville> afficherVilleParNom(@PathVariable String nom) {
-        for (Ville v : villes) {
-            if (v.getNom().equalsIgnoreCase(nom)) {
-                return new ResponseEntity<>(v, HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    // 3. Recherche de toutes les villes dont le nom commence par une chaîne donnée
+    @GetMapping("/nom/{prefix}")
+    public ResponseEntity<List<Ville>> rechercherVillesParNom(@PathVariable String prefix) {
+        List<Ville> villes = villeRepository.findByNomStartingWith(prefix);
+        return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes, HttpStatus.OK);
     }
-    
-   // 4. Méthode POST pour ajouter une nouvelle ville
-	@PostMapping("/ajouter")
-	public ResponseEntity<String> ajouterVille(@RequestBody Ville ville) {
 
-		for (Ville v : villes) {
-			if (v.getNom().equalsIgnoreCase(ville.getNom())) {
+    // 4. Recherche de toutes les villes dont la population est supérieure à un certain minimum
+    @GetMapping("/population/superieure/{min}")
+    public ResponseEntity<List<Ville>> rechercherVillesPopulationSuperieure(@PathVariable int min) {  
+        List<Ville> villes = villeRepository.findByNbHabitantsGreaterThan(min);
+        return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes, HttpStatus.OK);
+    }
 
-				return new ResponseEntity<>("La ville existe déjà", HttpStatus.BAD_REQUEST);
-			}
-		}
+    @GetMapping("/population/entre/{min}/{max}")
+    public ResponseEntity<List<Ville>> rechercherVillesPopulationEntre(@PathVariable int min, @PathVariable int max) {  
+        List<Ville> villes = villeRepository.findByNbHabitantsGreaterThanAndNbHabitantsLessThan(min, max);
+        return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes, HttpStatus.OK);
+    }
 
-		ville.setId(nextId++);
-		villes.add(ville);
-		return new ResponseEntity<>("Ville insérée avec succès", HttpStatus.OK);
-	}
 
-	@PutMapping("/modifier/{id}")
-	public ResponseEntity<String> modifierVille(@PathVariable int id, @RequestBody Ville nouvelleVille) {
-		for (int i = 0; i < villes.size(); i++) {
-			Ville v = villes.get(i);
-			if (v.getId() == id) {
-				v.setNom(nouvelleVille.getNom());
-				v.setNbHabitants(nouvelleVille.getNbHabitants());
-				return new ResponseEntity<>("Ville mise à jour avec succès", HttpStatus.OK);
-			}
-		}
+    // 6. Recherche de toutes les villes d'un département dont la population est supérieure à min
+    @GetMapping("/departement/{departementId}/population/superieure/{min}")
+    public ResponseEntity<List<Ville>> rechercherVillesDansDepartementPopulationSuperieure(@PathVariable int departementId, @PathVariable int min) {
+        List<Ville> villes = villeRepository.findByDepartementIdAndNbHabitantsGreaterThan(departementId, min);
+        return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes, HttpStatus.OK);
+    }
 
-		return new ResponseEntity<>("Ville non trouvée", HttpStatus.NOT_FOUND);
-	}
+    // 7. Recherche de toutes les villes d'un département dont la population est entre min et max
+    @GetMapping("/departement/{departementId}/population/entre/{min}/{max}")
+    public ResponseEntity<List<Ville>> rechercherVillesDansDepartementPopulationEntre(@PathVariable int departementId, @PathVariable int min, @PathVariable int max) {
+        List<Ville> villes = villeRepository.findByDepartementIdAndNbHabitantsGreaterThanAndNbHabitantsLessThan(departementId, min, max);  
+        return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes, HttpStatus.OK);
+    }
 
-	@DeleteMapping("/supprimer/{id}")
-	public ResponseEntity<String> supprimerVille(@PathVariable int id) {
-		for (int i = 0; i < villes.size(); i++) {
-			Ville v = villes.get(i);
-			if (v.getId() == id) {
-				villes.remove(i);
-				return new ResponseEntity<>("Ville supprimée avec succès", HttpStatus.OK);
-			}
-		}
+    // 8. Recherche des n villes les plus peuplées d'un département donné (utilise la pagination pour n)
+    @GetMapping("/departement/{departementId}/topn/{n}")
+    public ResponseEntity<List<Ville>> rechercherTopNPlusPeupleesDansDepartement(@PathVariable int departementId, @PathVariable int n) {
+        PageRequest pageable = PageRequest.of(0, n);  
+        Page<Ville> villes = villeRepository.findByDepartementIdOrderByNbHabitantsDesc(departementId, pageable);
+        return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes.getContent(), HttpStatus.OK);
+    }
 
-		return new ResponseEntity<>("Ville non trouvée", HttpStatus.NOT_FOUND);
-	}
+    // 9. Méthode POST pour ajouter une nouvelle ville
+    @PostMapping("/ajouter")
+    public ResponseEntity<String> ajouterVille(@RequestBody Ville ville) {
+        if (villeRepository.existsById(ville.getId())) {
+            return new ResponseEntity<>("La ville existe déjà", HttpStatus.BAD_REQUEST);
+        }
+
+        villeRepository.save(ville);  
+        return new ResponseEntity<>("Ville insérée avec succès", HttpStatus.CREATED);
+    }
+
+    // 10. Méthode PUT pour modifier une ville existante
+    @PutMapping("/modifier/{id}")
+    public ResponseEntity<String> modifierVille(@PathVariable int id, @RequestBody Ville nouvelleVille) {
+        if (!villeRepository.existsById(id)) {
+            return new ResponseEntity<>("Ville non trouvée", HttpStatus.NOT_FOUND);
+        }
+
+        nouvelleVille.setId(id);
+        villeRepository.save(nouvelleVille);
+        return new ResponseEntity<>("Ville mise à jour avec succès", HttpStatus.OK);
+    }
+
+    // 11. Méthode DELETE pour supprimer une ville par son id
+    @DeleteMapping("/supprimer/{id}")
+    public ResponseEntity<String> supprimerVille(@PathVariable int id) {
+        if (!villeRepository.existsById(id)) {
+            return new ResponseEntity<>("Ville non trouvée", HttpStatus.NOT_FOUND);
+        }
+
+        villeRepository.deleteById(id);
+        return new ResponseEntity<>("Ville supprimée avec succès", HttpStatus.OK);
+    }
 }
