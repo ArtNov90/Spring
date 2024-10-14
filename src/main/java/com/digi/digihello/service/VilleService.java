@@ -49,7 +49,8 @@ public class VilleService {
     }
 
     // Méthode pour obtenir les n villes les plus peuplées dans un département
-    public List<Ville> rechercherTopNPlusPeupleesDansDepartement(int departementId, int n) {
-        return villeRepository.findByDepartementIdOrderByNbHabitantsDesc(departementId, Pageable.ofSize(n)).getContent();
+    //public List<Ville> rechercherTopNPlusPeupleesDansDepartement(int departementId, int n) {
+       // return villeRepository.findByDepartementIdOrderByNbHabitantsDesc(departementId, Pageable.ofSize(n)).getContent();
     }
-}
+
+

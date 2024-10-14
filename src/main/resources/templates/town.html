@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Liste des Villes</title>
+</head>
+<body>
+    <h1>Liste des Villes</h1>
+    <ul>
+        <!-- Itère sur chaque ville et affiche le nom -->
+        <li th:each="ville : ${villes}" th:text="${ville.nom}"></li>
+    </ul>
+</body>
+</html>

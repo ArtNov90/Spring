@@ -1,7 +1,7 @@
 package com.digi.digihello.repository;
 
 import java.util.List;
-import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,23 +10,27 @@ import com.digi.digihello.model.Ville;
 
 @Repository
 public interface VilleRepository extends JpaRepository<Ville, Integer> {
-    // 1. Recherche de toutes les villes dont le nom commence par une chaîne donnée
-    List<Ville> findByNomStartingWith(String prefix);
 
-    // 2. Recherche de toutes les villes dont la population est supérieure à un certain minimum
-    List<Ville> findByNbHabitantsGreaterThan(int min); // Utiliser int
+    // Récupère une ville par son nom exact
+    public Ville findByNom(String nom);
 
-    // 3. Recherche de toutes les villes dont la population est entre un minimum et un maximum
-    List<Ville> findByNbHabitantsGreaterThanAndNbHabitantsLessThan(int min, int max); // Utiliser int
+    // Supprime une ville par son nom
+    public void deleteByNom(String nom);
+    // Méthode pour extraire une ville par son nom (nom commençant par une chaîne)
+    public List<Ville> findByNomStartingWith(String nom);
 
-    // 4. Recherche de toutes les villes d'un département dont la population est supérieure à min
-    List<Ville> findByDepartementIdAndNbHabitantsGreaterThan(int departementId, int min); // Utiliser int
+    // Méthode pour supprimer une ville par son ID
+    public void deleteById(Integer id);
 
-    // 5. Recherche de toutes les villes d'un département dont la population est entre min et max
-    List<Ville> findByDepartementIdAndNbHabitantsGreaterThanAndNbHabitantsLessThan(int departementId, int min, int max); // Utiliser int
+    // Méthode pour rechercher des villes dont la population est supérieure à un minimum
+    public List<Ville> findByNbHabitantsGreaterThan(int min);
 
-    // 6. Recherche des n villes les plus peuplées d'un département donné (en utilisant Pageable pour limiter le nombre de résultats)
-    Page<Ville> findByDepartementIdOrderByNbHabitantsDesc(int departementId, Pageable pageable);
+    // Méthode pour rechercher des villes dans un département avec une population entre min et max
+    public List<Ville> findByDepartementIdAndNbHabitantsGreaterThanAndNbHabitantsLessThan(
+        int departementId, int min, int max);
+
+    // Méthode pour obtenir les n villes les plus peuplées dans un département
+    public List<Ville> findByDepartementIdOrderByNbHabitantsDesc(int departementId, Pageable pageable);
 }
 
 
