@@ -50,15 +50,15 @@ public class VilleController {
 
     @GetMapping("/population/entre/{min}/{max}")
     public ResponseEntity<List<Ville>> rechercherVillesPopulationEntre(@PathVariable int min, @PathVariable int max) {  
-        List<Ville> villes = villeRepository.findByNbHabitantsGreaterThanAndNbHabitantsLessThan(min, max);
+        List<Ville> villes = villeRepository.findByDepartementIdAndNbHabitantsGreaterThanAndNbHabitantsLessThan( min, max, max);
         return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes, HttpStatus.OK);
     }
 
 
     // 6. Recherche de toutes les villes d'un département dont la population est supérieure à min
     @GetMapping("/departement/{departementId}/population/superieure/{min}")
-    public ResponseEntity<List<Ville>> rechercherVillesDansDepartementPopulationSuperieure(@PathVariable int departementId, @PathVariable int min) {
-        List<Ville> villes = villeRepository.findByDepartementIdAndNbHabitantsGreaterThan(departementId, min);
+    public ResponseEntity<List<Ville>> rechercherVillesDansDepartementPopulationSuperieure(@PathVariable int min) {
+        List<Ville> villes = villeRepository.findByNbHabitantsGreaterThan(min);
         return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes, HttpStatus.OK);
     }
 
@@ -70,12 +70,12 @@ public class VilleController {
     }
 
     // 8. Recherche des n villes les plus peuplées d'un département donné (utilise la pagination pour n)
-    @GetMapping("/departement/{departementId}/topn/{n}")
-    public ResponseEntity<List<Ville>> rechercherTopNPlusPeupleesDansDepartement(@PathVariable int departementId, @PathVariable int n) {
-        PageRequest pageable = PageRequest.of(0, n);  
-        Page<Ville> villes = villeRepository.findByDepartementIdOrderByNbHabitantsDesc(departementId, pageable);
-        return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes.getContent(), HttpStatus.OK);
-    }
+   // @GetMapping("/departement/{departementId}/topn/{n}")
+   // public ResponseEntity<List<Ville>> rechercherTopNPlusPeupleesDansDepartement(@PathVariable int departementId, @PathVariable int n) {
+   //     PageRequest pageable = PageRequest.of(0, n);  
+    //    List<Ville> villes = villeRepository.findByDepartementIdOrderByNbHabitantsDesc(departementId, pageable);
+       // return villes.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) : new ResponseEntity<>(villes.getContent(), HttpStatus.OK);
+    //}
 
     // 9. Méthode POST pour ajouter une nouvelle ville
     @PostMapping("/ajouter")
