@@ -48,6 +48,13 @@ public class VilleService {
         return villeRepository.findByDepartementIdAndNbHabitantsGreaterThanAndNbHabitantsLessThan(departementId, min, max);
     }
 
+
+
+	public List<Ville> extractVillesByDepartement(String codeDepartement) {
+		
+		return villeRepository.findByDepartementCode(codeDepartement);
+	}
+
     // Méthode pour obtenir les n villes les plus peuplées dans un département
     //public List<Ville> rechercherTopNPlusPeupleesDansDepartement(int departementId, int n) {
        // return villeRepository.findByDepartementIdOrderByNbHabitantsDesc(departementId, Pageable.ofSize(n)).getContent();

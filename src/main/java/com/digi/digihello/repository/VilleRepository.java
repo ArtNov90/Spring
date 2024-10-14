@@ -31,6 +31,9 @@ public interface VilleRepository extends JpaRepository<Ville, Integer> {
 
     // Méthode pour obtenir les n villes les plus peuplées dans un département
     public List<Ville> findByDepartementIdOrderByNbHabitantsDesc(int departementId, Pageable pageable);
+
+    // Méthode pour rechercher des villes par leur code de département
+    List<Ville> findByDepartementCode(String codeDepartement);
 }
 
 

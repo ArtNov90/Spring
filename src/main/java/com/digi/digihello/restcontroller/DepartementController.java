@@ -1,8 +1,10 @@
 package com.digi.digihello.restcontroller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,10 +15,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.digi.digihello.model.Departement;
 import com.digi.digihello.model.Ville;
 import com.digi.digihello.repository.DepartementRepository;
+import com.digi.digihello.service.VilleService;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/departement")
@@ -24,6 +34,51 @@ public class DepartementController {
 	// private List<Departement> departements = new ArrayList<>();
 	@Autowired
 	private DepartementRepository departementRepository;
+	
+	@Autowired
+	    private VilleService villeService;
+
+	    @Autowired
+	    private RestTemplate restTemplate; // Utilisé pour faire des appels REST
+	    public DepartementController(RestTemplate restTemplate) {
+	        this.restTemplate = restTemplate;
+	    }
+
+	    @GetMapping("/export/pdf")
+	    public ResponseEntity<Void> exportDepartementsToPDF(HttpServletResponse response) {
+	        // Récupérer tous les départements depuis la base de données
+	        List<Departement> departements = departementRepository.findAll();
+
+	        if (departements.isEmpty()) {
+	            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	        }
+
+	        // Préparer la réponse PDF
+	        response.setContentType("application/pdf");
+	        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=departements.pdf");
+
+	        Document document = new Document();
+	        try {
+	            PdfWriter.getInstance(document, response.getOutputStream());
+	            document.open();
+
+	            // Ajouter un titre
+	            document.add(new Paragraph("Liste des Départements"));
+
+	            for (Departement departement : departements) {
+	                document.add(new Paragraph("Nom: " + departement.getNom() + ", Code: " + departement.getCode()));
+	            }
+
+	            document.close();
+	        } catch (DocumentException | IOException e) {
+	            e.printStackTrace(); // Afficher l'erreur dans la console pour le débogage
+	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+
+	        return new ResponseEntity<>(HttpStatus.OK);
+	    }
+
+	        
 
 	// 1. Méthode GET pour lister tous les départements
 	// @GetMapping("/liste")
