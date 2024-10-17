@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.digi.digihello.model.Ville;
 import com.digi.digihello.repository.VilleRepository;
 
-@SpringBootTest
+
 @ActiveProfiles("test")
 public class VilleServiceTest {
 	@Autowired

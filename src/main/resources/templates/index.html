@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Page d'Accueil</title>
+<title>Page d'Accueil</title>
 </head>
 <body>
-    <h1>Bienvenue sur la page d'accueil</h1>
-    <p>Pour voir la liste des villes, cliquez sur le lien ci-dessous :</p>
-    <a href="/list-towns">Voir la liste des villes</a>
+	<h1>Bienvenue sur la page d'accueil</h1>
+	<p>Pour voir la liste des villes, cliquez sur le lien ci-dessous :</p>
+	<a href="/list-towns">Voir la liste des villes</a>
+	<div th:if="${authentication}">
+		<h3>Profil utilisateur:</h3>
+		<ul>
+			<li th:text="'Username :  '+${authentication.name}">Username</li>
+			<li th:text="'Authorities :  '+${authentication.authorities}">Authorities</li>
+		</ul>
+	</div>
 </body>
 </html>

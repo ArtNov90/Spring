@@ -3,6 +3,7 @@ package com.digi.digihello.service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import com.digi.digihello.model.Ville;
 import com.digi.digihello.repository.VilleRepository;
@@ -33,6 +34,7 @@ public class VilleService {
 
 
     // Méthode pour supprimer une ville par son ID et retourner la liste mise à jour
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Ville> supprimerVille(int idVille) {
         villeRepository.deleteById(idVille);
         return villeRepository.findAll();
